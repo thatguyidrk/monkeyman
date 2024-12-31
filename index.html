@@ -60,43 +60,37 @@
             margin-bottom: 1rem;
         }
 
-        .player-list {
-            margin: 1rem 0;
-            padding: 0;
-            list-style-type: none;
+        #profile-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            cursor: pointer;
         }
 
-        .player-list li {
-            margin: 0.5rem 0;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        #profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        .player-list button {
-            padding: 0.3rem 0.7rem;
-            font-size: 1rem;
+        #logout-btn {
+            display: none;
+            margin-top: 5px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            background: #f44336;
+            color: white;
             border: none;
             border-radius: 5px;
-            background: #555;
-            color: white;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        .player-list button:hover {
-            background: #777;
-        }
-
-        .remove-player {
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: #f44336;
-        }
-
-        .remove-player:hover {
-            color: #ff7961;
+        #logout-btn:hover {
+            background: #ff7961;
         }
 
         .add-player {
@@ -156,8 +150,16 @@
         <button onclick="addPlayer()">Add Player</button>
     </div>
 
+    <div id="profile-container">
+        <img id="profile-picture" alt="Profile Picture">
+        <button id="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
     <script>
         const playerList = document.getElementById('player-list');
+        const profileContainer = document.getElementById('profile-container');
+        const profilePicture = document.getElementById('profile-picture');
+        const logoutBtn = document.getElementById('logout-btn');
 
         function addPlayer() {
             const playerNameInput = document.getElementById('player-name');
@@ -165,43 +167,47 @@
 
             if (playerName) {
                 const listItem = document.createElement('li');
-
-                const removeIcon = document.createElement('span');
-                removeIcon.textContent = '🗑';
-                removeIcon.className = 'remove-player';
-                removeIcon.onclick = () => listItem.remove();
-
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = playerName;
-
-                const scoreSpan = document.createElement('span');
-                scoreSpan.textContent = '0';
-                scoreSpan.style.margin = '0 10px';
-
-                const addButton = document.createElement('button');
-                addButton.textContent = '+';
-                addButton.onclick = () => {
-                    scoreSpan.textContent = parseInt(scoreSpan.textContent) + 1;
-                };
-
-                const subtractButton = document.createElement('button');
-                subtractButton.textContent = '-';
-                subtractButton.onclick = () => {
-                    scoreSpan.textContent = Math.max(0, parseInt(scoreSpan.textContent) - 1);
-                };
-
-                listItem.appendChild(removeIcon);
-                listItem.appendChild(nameSpan);
-                listItem.appendChild(subtractButton);
-                listItem.appendChild(scoreSpan);
-                listItem.appendChild(addButton);
-
+                listItem.textContent = playerName;
                 playerList.appendChild(listItem);
                 playerNameInput.value = '';
             } else {
                 alert('Please enter a player name!');
             }
         }
+
+        function logout() {
+            localStorage.removeItem('spotifyAccessToken');
+            profileContainer.style.display = 'none';
+            alert('Logged out successfully!');
+        }
+
+        async function fetchSpotifyProfile(token) {
+            const response = await fetch('https://api.spotify.com/v1/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.images && data.images.length > 0) {
+                profilePicture.src = data.images[0].url;
+            } else {
+                profilePicture.src = 'https://via.placeholder.com/50';
+            }
+            profileContainer.style.display = 'flex';
+        }
+
+        // Handle Spotify Redirect
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token') || localStorage.getItem('spotifyAccessToken');
+
+        if (accessToken) {
+            localStorage.setItem('spotifyAccessToken', accessToken);
+            fetchSpotifyProfile(accessToken);
+        }
+
+        // Toggle logout button visibility on profile click
+        profileContainer.addEventListener('click', () => {
+            logoutBtn.style.display = logoutBtn.style.display === 'none' ? 'block' : 'none';
+        });
 
         // Create animated flakes
         function createFlake() {
