@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Song</title>
     <style>
+        /* Existing styles remain unchanged */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -12,7 +13,6 @@
             background: #3a3a3a;
             color: #fff;
         }
-
         .flakes {
             position: fixed;
             top: 0;
@@ -22,7 +22,6 @@
             pointer-events: none;
             z-index: -1;
         }
-
         .flake {
             position: absolute;
             width: 15px;
@@ -32,7 +31,6 @@
             opacity: 0.7;
             animation: fall 12s linear infinite;
         }
-
         @keyframes fall {
             from {
                 transform: translateY(-100vh);
@@ -43,7 +41,6 @@
                 opacity: 0;
             }
         }
-
         .container {
             display: flex;
             flex-direction: column;
@@ -53,18 +50,15 @@
             text-align: center;
             padding-bottom: 5rem;
         }
-
         h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
         }
-
         .player-list {
             margin: 1rem 0;
             padding: 0;
             list-style-type: none;
         }
-
         .player-list li {
             margin: 0.5rem 0;
             font-size: 1.5rem;
@@ -72,7 +66,6 @@
             align-items: center;
             gap: 10px;
         }
-
         .player-list button {
             padding: 0.3rem 0.7rem;
             font-size: 1rem;
@@ -83,21 +76,17 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-
         .player-list button:hover {
             background: #777;
         }
-
         .remove-player {
             cursor: pointer;
             font-size: 1.2rem;
             color: #f44336;
         }
-
         .remove-player:hover {
             color: #ff7961;
         }
-
         .add-player {
             position: fixed;
             bottom: 0;
@@ -111,14 +100,12 @@
             padding: 1rem 0;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
         }
-
         .add-player input {
             padding: 0.5rem;
             font-size: 1rem;
             border-radius: 5px;
             border: none;
         }
-
         .add-player button {
             padding: 0.4rem 0.8rem;
             font-size: 0.9rem;
@@ -129,16 +116,13 @@
             cursor: pointer;
             transition: opacity 0.3s ease, transform 0.2s ease;
         }
-
         .add-player button:hover {
             transform: scale(1.05);
             opacity: 0.9;
         }
-
         .add-player button:active {
             transform: scale(0.95);
         }
-
         .spotify-login {
             position: fixed;
             top: 10px;
@@ -147,7 +131,6 @@
             flex-direction: column;
             align-items: flex-end;
         }
-
         .spotify-login button {
             padding: 10px 20px;
             font-size: 1rem;
@@ -160,12 +143,10 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease, box-shadow 0.3s ease;
         }
-
         .spotify-login button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
         }
-
         .spotify-login button:active {
             transform: scale(0.95);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -193,13 +174,13 @@
         const playerList = document.getElementById('player-list');
         const loginButton = document.getElementById('login-button');
 
+        // Function to add a player to the list
         function addPlayer() {
             const playerNameInput = document.getElementById('player-name');
             const playerName = playerNameInput.value.trim();
 
             if (playerName) {
                 const listItem = document.createElement('li');
-
                 const removeIcon = document.createElement('span');
                 removeIcon.textContent = '🗑';
                 removeIcon.className = 'remove-player';
@@ -237,30 +218,34 @@
             }
         }
 
+        // Function to authenticate with Spotify
         function authenticateSpotify() {
             const clientId = '132aa6b73ca74882a12a23d578d81284';
-            const redirectUri = 'https://thatguyidrk.github.io/monkeyman/';
+            const redirectUri = 'https://thatguyidrk.github.io/monkeyman/'; // Ensure this matches your Spotify Developer Console
             const scope = 'streaming user-read-email user-modify-playback-state user-read-playback-state';
 
             const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
+
+            // Open the Spotify authentication page
             window.location.href = authUrl;
         }
 
-        loginButton.onclick = authenticateSpotify;
+        // Trigger Spotify authentication when the login button is clicked
+        loginButton.addEventListener('click', function() {
+            authenticateSpotify();
+        });
 
-        function createFlake() {
-            const flake = document.createElement('div');
-            flake.classList.add('flake');
-            flake.style.left = Math.random() * 100 + 'vw';
-            flake.style.animationDuration = Math.random() * 7 + 6 + 's';
-            document.getElementById('flakes').appendChild(flake);
-
-            setTimeout(() => {
-                flake.remove();
-            }, 12000);
-        }
-
-        setInterval(createFlake, 150);
+        // Check for Spotify token in URL and store it if found
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.hash.substring(1));
+            const accessToken = urlParams.get('access_token');
+            if (accessToken) {
+                // Save the access token for later use
+                localStorage.setItem('spotifyAccessToken', accessToken);
+                alert('Spotify login successful!');
+                loginButton.style.display = 'none'; // Hide the login button after successful login
+            }
+        };
     </script>
 </body>
 </html>
