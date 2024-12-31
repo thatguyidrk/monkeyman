@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Song</title>
+    <style>
+        /* General Styling */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: #3a3a3a;
+            color: #fff;
+        }
+
+        .flakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .flake {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: fall 12s linear infinite;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-100vh);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            text-align: center;
+            padding-bottom: 5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .player-list {
+            margin: 1rem 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .player-list li {
+            margin: 0.5rem 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-list button {
+            padding: 0.3rem 0.7rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .player-list button:hover {
+            background: #777;
+        }
+
+        .remove-player {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #f44336;
+        }
+
+        .remove-player:hover {
+            color: #ff7961;
+        }
+
+        .add-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #2a2a2a;
+            padding: 1rem 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .add-player input {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .add-player button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+        }
+
+        .add-player button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .add-player button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="flakes" id="flakes"></div>
+
+    <div class="container">
+        <h1>Guess the Song</h1>
+        <ul class="player-list" id="player-list">
+            <!-- Player names will be added here dynamically -->
+        </ul>
+    </div>
+
+    <div class="add-player">
+        <input type="text" id="player-name" placeholder="Enter player name">
+        <button onclick="addPlayer()">Add Player</button>
+    </div>
+
+    <script>
+        const playerList = document.getElementById('player-list');
+
+        function addPlayer() {
+            const playerNameInput = document.getElementById('player-name');
+            const playerName = playerNameInput.value.trim();
+
+            if (playerName) {
+                const listItem = document.createElement('li');
+
+                const removeIcon = document.createElement('span');
+                removeIcon.textContent = '🗑';
+                removeIcon.className = 'remove-player';
+                removeIcon.onclick = () => listItem.remove();
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = playerName;
+
+                const scoreSpan = document.createElement('span');
+                scoreSpan.textContent = '0';
+                scoreSpan.style.margin = '0 10px';
+
+                const addButton = document.createElement('button');
+                addButton.textContent = '+';
+                addButton.onclick = () => {
+                    scoreSpan.textContent = parseInt(scoreSpan.textContent) + 1;
+                };
+
+                const subtractButton = document.createElement('button');
+                subtractButton.textContent = '-';
+                subtractButton.onclick = () => {
+                    scoreSpan.textContent = Math.max(0, parseInt(scoreSpan.textContent) - 1);
+                };
+
+                listItem.appendChild(removeIcon);
+                listItem.appendChild(nameSpan);
+                listItem.appendChild(subtractButton);
+                listItem.appendChild(scoreSpan);
+                listItem.appendChild(addButton);
+
+                playerList.appendChild(listItem);
+                playerNameInput.value = '';
+            } else {
+                alert('Please enter a player name!');
+            }
+        }
+
+        // Create animated flakes
+        function createFlake() {
+            const flake = document.createElement('div');
+            flake.classList.add('flake');
+            flake.style.left = Math.random() * 100 + 'vw';
+            flake.style.animationDuration = Math.random() * 7 + 6 + 's';
+            document.getElementById('flakes').appendChild(flake);
+
+            setTimeout(() => {
+                flake.remove();
+            }, 12000);
+        }
+
+        setInterval(createFlake, 150);
+    </script>
+</body>
+</html>
